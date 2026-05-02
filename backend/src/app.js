@@ -25,7 +25,7 @@ app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: FRONTEND_URL || "https://task-manager-52d7.onrender.com",
     credentials: true,
   }),
 );
