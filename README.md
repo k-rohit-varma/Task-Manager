@@ -94,8 +94,8 @@ A modern, full-stack Task Management application built with a clean black-and-wh
 ### Backend Setup
 
 ```bash
-git clone https://github.com/your-username/task-manager-backend.git
-cd task-manager-backend
+git clone https://github.com/k-rohit-varma/task-manager.git
+cd backend
 npm install
 ```
 
@@ -117,8 +117,8 @@ npm run dev
 ### Frontend Setup
 
 ```bash
-git clone https://github.com/your-username/task-manager-frontend.git
-cd task-manager-frontend
+git clone https://github.com/your-username/task-manager.git
+cd frontend
 npm install
 ```
 
