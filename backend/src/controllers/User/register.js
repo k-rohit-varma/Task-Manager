@@ -4,9 +4,9 @@ import jwt from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
   try {
-    const { name ,email, password } = req.body;
+    const { name, email, password } = req.body;
 
-    if ( !name || !email || !password) {
+    if (!name || !email || !password) {
       return res.status(400).json({
         message: "All fields are required.",
       });
@@ -29,19 +29,18 @@ export const registerUser = async (req, res) => {
       password: hash,
     });
 
-    const token = jwt.sign(
-      { data: result },
-      process.env.JWT_SCRECT
-    );
+    const token = jwt.sign({ data: result }, process.env.JWT_SCRECT);
     req.user = result;
-    return res
-      .cookie("token", token)
-      .status(201)
-      .json({
-        message: "User registered successfully",
-        user: result,
-      });
-
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true, // REQUIRED on HTTPS (Render uses HTTPS)
+      sameSite: "none", // REQUIRED for cross-origin
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return res.status(201).json({
+      message: "User registered successfully",
+      user: result,
+    });
   } catch (err) {
     return res.status(500).json({
       message: "User registration failed",

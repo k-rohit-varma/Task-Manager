@@ -25,8 +25,14 @@ export const login = async (req, res) => {
       });
     }
     const token = jwt.sign({ data: user }, process.env.JWT_SCRECT);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true, // REQUIRED on HTTPS (Render uses HTTPS)
+      sameSite: "none", // REQUIRED for cross-origin
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     req.user = user;
-    return res.cookie("token", token).status(200).json({
+    return res.status(200).json({
       message: "User logged in successfully",
       user,
     });

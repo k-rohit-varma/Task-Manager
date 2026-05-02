@@ -22,7 +22,7 @@ export const adminMiddleware = (req, res, next) => {
         message: "Forbidden",
       });
     }
-    req.user = decoded;
+    req.user = decoded.data;
     next();
   } catch (err) {
     return res.status(401).json({
