@@ -22,10 +22,12 @@ connectDB();
 
 app.use(cookieParser());
 app.use(morgan("dev"));
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: FRONTEND_URL || "https://task-manager-52d7.onrender.com",
+    origin:
+      "https://task-manager-52d7.onrender.com" || process.env.FRONT_END_URL,
     credentials: true,
   }),
 );
