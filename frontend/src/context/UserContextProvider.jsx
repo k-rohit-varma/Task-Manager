@@ -7,28 +7,38 @@ export const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(BACKEND_URL + "user/me", {
-          withCredentials: true,
-        });
+  const refreshUser = async () => {
+    setIsAuthLoading(true);
 
-        if (res.status === 200) {
-          setUser(res?.data?.user);
-        }
-      } catch {
-        setUser(null);
-      } finally {
-        setIsAuthLoading(false);
+    try {
+      const res = await axios.get(BACKEND_URL + "user/me", {
+        withCredentials: true,
+      });
+
+      if (res.status === 200) {
+        setUser(res?.data?.user);
       }
-    };
+    } catch {
+      setUser(null);
+    } finally {
+      setIsAuthLoading(false);
+    }
+  };
 
-    fetchUser();
+  useEffect(() => {
+    refreshUser();
   }, []);
 
   return (
-    <userContext.Provider value={{ user, setUser, isAuthLoading, setIsAuthLoading }}>
+    <userContext.Provider
+      value={{
+        user,
+        setUser,
+        isAuthLoading,
+        setIsAuthLoading,
+        refreshUser,
+      }}
+    >
       {children}
     </userContext.Provider>
   );

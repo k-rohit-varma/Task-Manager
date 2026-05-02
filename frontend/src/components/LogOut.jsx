@@ -1,37 +1,39 @@
 import axios from "axios";
-import { BACKEND_URL } from "../../config";
-import { useContext } from "react";
-import { userContext } from "../context/userContext";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { BACKEND_URL } from "../../config";
+import { userContext } from "../context/userContext";
 
-const LogOut = () => {
-    const {setUser} = useContext(userContext);
-    const navigate = useNavigate()
-  const handlelogOut = async () => {
-    const res = await axios.post(
-      BACKEND_URL + "user/logout",
-      {},
-      {
-        withCredentials: true,
-      },
-    );
-    if (res.status === 200) {
-      setUser(null);  
-      navigate("/")
-      alert("Logged out successfully");
-    } else {
-      alert("Logout failed");
+const LogOut = ({ className = "btn-secondary" }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setUser } = useContext(userContext);
+  const navigate = useNavigate();
+
+  const handleLogOut = async () => {
+    setIsSubmitting(true);
+
+    try {
+      const res = await axios.post(
+        BACKEND_URL + "user/logout",
+        {},
+        {
+          withCredentials: true,
+        },
+      );
+
+      if (res.status === 200) {
+        setUser(null);
+        navigate("/", { replace: true });
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
   return (
-    <div>
-      <button
-        className="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition duration-200"
-        onClick={handlelogOut}
-      >
-        Log Out
-      </button>
-    </div>
+    <button className={className} onClick={handleLogOut} type="button">
+      {isSubmitting ? "Logging Out..." : "Log Out"}
+    </button>
   );
 };
 

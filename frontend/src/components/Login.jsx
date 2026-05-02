@@ -1,93 +1,96 @@
 import axios from "axios";
 import { useContext, useState } from "react";
-import { BACKEND_URL } from "../../config";
 import { useNavigate } from "react-router-dom";
+import { BACKEND_URL } from "../../config";
 import { userContext } from "../context/userContext";
 
-const Login = () => {
+const Login = ({ onSwitchMode }) => {
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { setUser } = useContext(userContext);
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+  const { setUser, refreshUser } = useContext(userContext);
+
+  const handleChange = (event) => {
+    setForm((current) => ({
+      ...current,
+      [event.target.name]: event.target.value,
+    }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const user = await axios.post(BACKEND_URL + "user/login", form, {
-      withCredentials: true,
-    });
-    if (!user) {
-      alert("Login failed");
-      return;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      const response = await axios.post(BACKEND_URL + "user/login", form, {
+        withCredentials: true,
+      });
+
+      if (response.status === 200) {
+        setUser(response.data.user);
+        await refreshUser();
+        navigate("/projects");
+      }
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Unable to sign in right now.");
+    } finally {
+      setIsSubmitting(false);
     }
-    setUser(user.data.user);
-    navigate("/profile");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-8">
-        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
-          Welcome Back 👋
-        </h2>
+    <div className="auth-form-block">
+      <div className="section-label">Welcome Back</div>
+      <h2 className="auth-title">Login to Continue</h2>
+      <p className="helper-text section-spacer-md">
+        Return to your dashboard, review active projects, and keep delivery moving.
+      </p>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              placeholder="you@example.com"
-              value={form.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
+      <form className="form-grid" onSubmit={handleSubmit}>
+        <div className="input-shell">
+          <label htmlFor="login-email">Email</label>
+          <input
+            id="login-email"
+            name="email"
+            onChange={handleChange}
+            placeholder="you@example.com"
+            required
+            type="email"
+            value={form.email}
+          />
+        </div>
 
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              placeholder="••••••••"
-              value={form.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
+        <div className="input-shell">
+          <label htmlFor="login-password">Password</label>
+          <input
+            id="login-password"
+            name="password"
+            onChange={handleChange}
+            placeholder="Enter your password"
+            required
+            type="password"
+            value={form.password}
+          />
+        </div>
 
-          {/* Button */}
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-200"
-          >
-            Sign In
-          </button>
-        </form>
+        <div className="status-message">{message}</div>
 
-        {/* Footer */}
-        <p className="text-sm text-center text-gray-500 mt-4">
-          Don’t have an account?{" "}
-          <span className="text-blue-600 cursor-pointer hover:underline">
-            Sign up
-          </span>
-        </p>
-      </div>
+        <button className="btn-primary auth-submit" disabled={isSubmitting} type="submit">
+          {isSubmitting ? "Signing In..." : "Sign In"}
+        </button>
+      </form>
+
+      <p className="helper-text section-spacer-md">
+        New here?{" "}
+        <button className="btn-ghost auth-switch" onClick={onSwitchMode} type="button">
+          Create an account
+        </button>
+      </p>
     </div>
   );
 };

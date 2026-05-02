@@ -5,13 +5,13 @@ export const getAllProjects = async ( req , res )=>{
         const user = req.user;
         console.log("users. "+user);
         if( user.role === "admin"){
-            const projects = await Project.find();
+            const projects = await Project.find().populate("users", "name email role");
             return res.status(200).send({
                 message : "Projects fetched successfully",
                 projects
             })
         }
-        const projects = await Project.find({users : user._id});
+        const projects = await Project.find({users : user._id}).populate("users", "name email role");
         return res.status(200).send({
             message : "Projects fetched successfully",
             projects

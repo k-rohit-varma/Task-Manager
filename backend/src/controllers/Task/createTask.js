@@ -3,7 +3,7 @@ import Task from "../../db/models/Task.js";
 
 export const createTask = async (req, res) => {
   try {
-    const { title, description , dueDate } = req.body;
+    const { title, description, dueDate, status } = req.body;
     const projectId = req.params.id;
 
     if (!title || !description || !projectId) {
@@ -20,23 +20,34 @@ export const createTask = async (req, res) => {
     }
     
     const query = {
-        title,
+      title,
       description,
       project: projectId,
+    };
+
+    if (dueDate) {
+      query.dueDate = dueDate;
     }
 
-    if(dueDate){
-        query.dueDate = dueDate
+    if (status) {
+      query.status = status;
+      query.isCompleted = status === "completed";
     }
 
     const result = await Task.create(query);
 
-    project.activeTasks.push(result._id);
+    if (result.status === "completed") {
+      project.closedTasks.push(result._id);
+    } else {
+      project.activeTasks.push(result._id);
+    }
     await project.save();
+
+    const createdTask = await Task.findById(result._id).populate("userId", "name email");
 
     return res.status(200).send({
       message: "Task Created Successfully",
-      task: result,
+      task: createdTask,
     });
   } catch (err) {
     return res.status(500).send({

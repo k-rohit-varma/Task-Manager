@@ -23,15 +23,28 @@ export const assignProject = async (req, res) => {
       });
     }
 
-    project.users.push(userId);
+    const projectHasUser = project.users.some(
+      (assignedUserId) => assignedUserId.toString() === userId,
+    );
+    const userHasProject = user.projects.some(
+      (assignedProjectId) => assignedProjectId.toString() === projectId,
+    );
+
+    if (!projectHasUser) {
+      project.users.push(userId);
+    }
     await project.save();
 
-    user.projects.push(projectId);
+    if (!userHasProject) {
+      user.projects.push(projectId);
+    }
     await user.save();
+
+    const updatedProject = await Project.findById(projectId).populate("users", "name email role");
 
     return res.status(200).send({
       message: "Project Assigned Successfully",
-      project
+      project: updatedProject,
     });
   } catch (err) {
     return res.status(500).send({

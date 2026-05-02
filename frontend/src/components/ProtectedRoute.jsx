@@ -6,7 +6,13 @@ const ProtectedRoute = ({ children }) => {
   const { user, isAuthLoading } = useContext(userContext);
 
   if (isAuthLoading) {
-    return <div>Checking authentication...</div>;
+    return (
+      <div className="page route-loading">
+        <div className="glass-panel route-loading-card">
+          Checking authentication...
+        </div>
+      </div>
+    );
   }
 
   if (!user) {

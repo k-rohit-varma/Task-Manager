@@ -8,7 +8,7 @@ import { getAllProjects } from '../controllers/Project/getAllProjects.js'
 const projectRouter = express.Router()
 
 projectRouter.post('/',adminMiddleware ,createProject)
-projectRouter.post('/assign',auth ,assignProject)
+projectRouter.post('/assign',adminMiddleware ,assignProject)
 projectRouter.get('/',auth, getAllProjects);
 
 export default projectRouter
