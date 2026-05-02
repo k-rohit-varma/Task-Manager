@@ -1,1 +1,1 @@
-export const BACKEND_URL = "https://task-manager-backend-8pkr.onrender.com";
+export const BACKEND_URL = "https://task-manager-backend-8pkr.onrender.com/api/";
